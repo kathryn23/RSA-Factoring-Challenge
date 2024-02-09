@@ -1,32 +1,60 @@
-#include "factor.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
-/**
- * main - main function
- *
- * Return: void
- */
-int main(int argc, char *argv[])
-{
-	FILE *fptr;
-	size_t count;
-	ssize_t line;
-	char *buffer = NULL;
+int is_prime(int number) {
+    if (number <= 1) {
+        return 0;
+    }
 
+    for (int i = 2; i <= sqrt(number); i++) {
+        if (number % i == 0) {
+            return 0;
+        }
+    }
 
-	if (argc != 2)
-	{
-		fprintf(stderr, "Usage: factor <filename>\n");
-		exit(EXIT_FAILURE);
-	}
-	fptr = fopen(argv[1], "r");
-	if (fptr == NULL)
-	{
-		fprintf(stderr, "Error: can't open file %s\n", argv[1]);
-		exit(EXIT_FAILURE);
-	}
-	while((line = getline(&buffer, &count, fptr)) != -1)
-	{
-		factorize(buffer);
-	}
-return (0);
+    return 1;
+}
+
+void factorize_number(int number) {
+    int p = 0, q = 0;
+
+    for (int i = 2; i <= number / 2; i++) {
+        if (number % i == 0) {
+            if (is_prime(i) && is_prime(number / i)) {
+                p = i;
+                q = number / i;
+                break;
+            }
+        }
+    }
+
+    printf("%d=%d*%d\n", number, p, q);
+}
+
+void factorize_file(const char* file_path) {
+    FILE* file = fopen(file_path, "r");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    int number;
+    while (fscanf(file, "%d", &number) != EOF) {
+        factorize_number(number);
+    }
+
+    fclose(file);
+}
+
+int main(int argc, char* argv[]) {
+    if (argc != 2) {
+        printf("Usage: rsa <file>\n");
+        return 1;
+    }
+
+    const char* file_path = argv[1];
+    factorize_file(file_path);
+
+    return 0;
 }
